@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # MQTT Broker
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: swarm-cleaner-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - swarm-cleaner-network
+
+  # Обелиск (FastAPI сервер)
+  obelisk:
+    build:
+      context: .
+      dockerfile: docker/obelisk/Dockerfile
+    container_name: swarm-cleaner-obelisk
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./datasets:/app/datasets
+      - ./config:/app/config
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - mosquitto
+    networks:
+      - swarm-cleaner-network
+    command: python -m obelisk.api.main
+
+  # PostgreSQL (опционально)
+  postgres:
+    image: postgres:15-alpine
+    container_name: swarm-cleaner-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=swarm_cleaner
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - swarm-cleaner-network
+
+volumes:
+  postgres_data:
+
+networks:
+  swarm-cleaner-network:
+    driver: bridge
+
+

@@ -1,0 +1,84 @@
+active_learning:
+  auto_deploy: true
+  check_interval: 3600
+  collection_interval: 3600
+  confidence_lower: 0.3
+  confidence_upper: 0.7
+  enabled: true
+  min_improvement: 0.01
+  min_samples_for_retrain: 100
+  retrain_batch_size: 16
+  retrain_epochs: 10
+data_lake:
+  base_path: data
+  labeled_path: data/labeled
+  logs_path: data/logs
+  models_path: data/models
+  raw_annotations_path: data/raw/annotations
+  raw_frames_path: data/raw/frames
+database:
+  postgresql:
+    database: swarm_cleaner
+    host: localhost
+    password: password
+    port: 5432
+    username: admin
+  sqlite_path: data/obelisk.db
+  type: sqlite
+dataset:
+  base_path: datasets\cigarette_butt
+  classes:
+  - cig_butt
+  test_path: datasets\cigarette_butt\test\images
+  train_path: datasets\cigarette_butt\train\images
+  val_path: datasets\cigarette_butt\valid\images
+edge:
+  device: cpu
+  inference_interval: 0.0
+  max_queue_size: 50
+logging:
+  backup_count: 5
+  file_path: data/logs/system.log
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  level: INFO
+  max_file_size: 10485760
+model:
+  confidence_threshold: 0.5
+  data_config: datasets\cigarette_butt\data.yaml
+  input_size: 416
+  iou_threshold: 0.45
+  max_detections: 100
+  name: yolov8n
+  weights_path: models/cigarette_detector/best.pt
+mqtt_topics:
+  detection: obelisk/detection
+  model_update: obelisk/model/update
+  robot_heartbeat: robots/{robot_id}/heartbeat
+  robot_status: robots/{robot_id}/status
+  robot_telemetry: robots/{robot_id}/telemetry
+  system_status: obelisk/system/status
+  task_completed: obelisk/tasks/completed
+  task_failed: obelisk/tasks/failed
+  tasks: obelisk/tasks
+obelisk:
+  enable_tls: false
+  host: localhost
+  mqtt_broker: localhost
+  mqtt_password: null
+  mqtt_port: 1883
+  mqtt_username: null
+  port: 8000
+robots:
+  collector:
+    collection_timeout: 300
+    default_speed: 0.5
+    max_battery_low: 20
+    vacuum_duration: 2.0
+  heartbeat_interval: 30
+  task_timeout: 600
+security:
+  allowed_hosts:
+  - localhost
+  - 127.0.0.1
+  api_key_required: false
+  enable_encryption: false

@@ -1,0 +1,165 @@
+═══════════════════════════════════════════════════════════════
+  БЫСТРАЯ СПРАВКА: ВСЕ КОМАНДЫ ПО ПОРЯДКУ
+═══════════════════════════════════════════════════════════════
+
+1. УСТАНОВКА ЗАВИСИМОСТЕЙ
+─────────────────────────────────────────────────────────────
+pip install ultralytics>=8.0.0 paho-mqtt>=1.6.1 fastapi>=0.104.0 pyyaml>=6.0.1 aiosqlite opencv-python
+
+
+2. НАСТРОЙКА ДАТАСЕТА
+─────────────────────────────────────────────────────────────
+python scripts\setup_dataset.py
+
+# Очистка датасета (конвертация сегментов в боксы)
+python scripts\convert_segments_to_boxes.py
+
+# Только проверить (без изменений)
+python scripts\convert_segments_to_boxes.py --dry-run
+
+
+3. ОБУЧЕНИЕ МОДЕЛИ (если нужно)
+─────────────────────────────────────────────────────────────
+python scripts\train_model.py
+
+# Дообучение на полном датасете (9000+ фото) для >95% точности
+python scripts\retrain_full_dataset.py
+
+# ВАЛИДАЦИЯ И ЗАМЕНА МОДЕЛИ (после обучения на GPU) ⭐ НОВЫЙ
+python scripts\validate_and_replace_model.py
+# - Валидирует новую модель
+# - Сравнивает со старой
+# - Заменяет если лучше
+# - Удаляет старые модели
+# - Очищает кэш
+
+# ВАЛИДАЦИЯ И ЗАМЕНА МОДЕЛИ (после обучения на GPU)
+python scripts\validate_and_replace_model.py
+# - Валидирует новую модель
+# - Сравнивает со старой
+# - Заменяет если лучше
+# - Удаляет старые модели
+# - Очищает кэш
+
+# Или быстро (10 эпох):
+cd models\cigarette_detector
+python -c "from ultralytics import YOLO; model = YOLO('yolov8n.pt'); model.train(data='../../datasets/cigarette_butt/data.yaml', epochs=10, imgsz=640, batch=16)"
+cd ..\..
+
+
+4. КОПИРОВАНИЕ МОДЕЛИ
+─────────────────────────────────────────────────────────────
+copy "models\cigarette_detector\train\weights\best.pt" "models\cigarette_detector\best.pt"
+
+
+5. ПРОВЕРКА МОДЕЛИ
+─────────────────────────────────────────────────────────────
+python scripts\test_model_load.py
+
+
+6. ТЕСТ С IP WEBCAM
+─────────────────────────────────────────────────────────────
+# С пониженным порогом (рекомендуется)
+python scripts\test_with_webcam.py --ip 192.168.1.XXX --conf 0.3
+
+# С очень низким порогом
+python scripts\test_with_webcam.py --ip 192.168.1.XXX --conf 0.2
+
+# Локальная камера
+python scripts\test_with_webcam.py --ip 0 --conf 0.3
+
+# Тест со ВСЕМИ порогами одновременно (3 потока)
+python scripts\test_all_thresholds.py --ip 192.168.1.XXX
+
+
+7. ТЕСТ НА ВИДЕОФАЙЛЕ
+─────────────────────────────────────────────────────────────
+# Базовый тест с сохранением результатов
+python scripts\test_video_file.py "path\to\video.mp4"
+
+# С настройкой порога
+python scripts\test_video_file.py "video.mp4" --conf 0.3
+
+# Без показа видео (быстрее)
+python scripts\test_video_file.py "video.mp4" --no-show
+
+# Без сохранения (только просмотр)
+python scripts\test_video_file.py "video.mp4" --no-save
+
+Результаты сохраняются в: data\results\
+- Видео с bounding boxes: video_detected_TIMESTAMP.mp4
+- Статистика JSON: video_stats_TIMESTAMP.json
+
+
+8. АКТИВНОЕ ОБУЧЕНИЕ (🧠 "Зародыш интеллекта")
+─────────────────────────────────────────────────────────────
+# Тест с активным обучением (система учится на видео)
+python scripts\test_with_active_learning.py --source 192.168.1.XXX
+
+# Тест на видеофайле с активным обучением
+python scripts\test_video_file.py "video.mp4" --active-learning
+
+# С локальной камерой
+python scripts\test_with_active_learning.py --source 0
+
+
+9. ОПТИМИЗАЦИЯ FPS (✅ ПРИМЕНЕНО!)
+─────────────────────────────────────────────────────────────
+# ✅ Оптимизации уже применены в config/config.yaml
+# input_size: 416 (было 640) - 2x ускорение!
+# ONNX модель используется автоматически
+
+# Оптимизация модели (ONNX экспорт)
+python scripts\optimize_for_fps.py
+
+# Тест FPS (30 секунд) - проверьте результат!
+python scripts\test_fps.py --source 0 --duration 30 --imgsz 416
+
+# Тест FPS на IP Webcam
+python scripts\test_fps.py --source 192.168.1.XXX --imgsz 416
+
+# Если нужен еще больше FPS, уменьшите до 320:
+# Измените в config/config.yaml: input_size: 320
+
+10. ЗАПУСК ЭКОНЕТ - ГРАФИЧЕСКИЙ ИНТЕРФЕЙС
+─────────────────────────────────────────────────────────────
+# Запуск Material Design GUI (РЕКОМЕНДУЕТСЯ)
+python -m obelisk.ui.gui_material
+
+# Или через батник (Windows)
+ЗАПУСТИТЬ_ЭКОНЕТ.bat
+
+# Или через скрипт
+python scripts\run_econet.py
+python scripts\run_gui.py
+
+
+11. ТЕСТИРОВАНИЕ ⭐ НОВОЕ
+─────────────────────────────────────────────────────────────
+# Запуск всех тестов
+pytest tests\ -v
+
+# С покрытием кода
+pytest tests\ --cov=obelisk --cov-report=html
+
+# Только unit тесты
+pytest tests\unit\ -v
+
+# Только тесты калибровки
+pytest tests\calibration\ -v
+
+# Параллельно (быстрее)
+pytest tests\ -n 4
+
+# См. tests/README.md для полной документации
+
+
+12. ДИАГНОСТИКА (если не работает)
+─────────────────────────────────────────────────────────────
+python scripts\diagnose_video.py
+
+
+═══════════════════════════════════════════════════════════════
+  ВАЖНО: ЗАМЕНИТЕ 192.168.1.XXX НА IP ВАШЕГО ТЕЛЕФОНА!
+═══════════════════════════════════════════════════════════════
+

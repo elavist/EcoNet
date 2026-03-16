@@ -1,0 +1,58 @@
+# Core dependencies
+ultralytics>=8.0.0
+torch>=2.0.0
+torchvision>=0.15.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+pillow>=10.0.0
+onnxruntime>=1.16.0  # Для работы с ONNX моделями (опционально)
+
+# API and Web
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+websockets>=12.0
+
+# MQTT
+paho-mqtt>=1.6.1
+
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9
+alembic>=1.12.0
+aiosqlite>=0.19.0  # Для асинхронной работы с SQLite
+
+# Data processing
+pandas>=2.1.0
+pyyaml>=6.0.1
+
+# Image processing
+imageio>=2.31.0
+scikit-image>=0.22.0
+
+# ML Ops
+mlflow>=2.8.0
+wandb>=0.16.0
+
+# Utilities
+python-dotenv>=1.0.0
+tqdm>=4.66.0
+# Note: pynvml перенесен в requirements-optional.txt (опциональная зависимость)
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0  # Code coverage
+pytest-xdist>=3.5.0  # Parallel test execution
+pytest-mock>=3.12.0  # Mocking utilities
+
+# Chat and LLM (optional)
+openai>=1.0.0  # Для OpenAI API
+requests>=2.31.0  # Для Ollama и других API
+groq>=0.4.0  # Для Groq API (рекомендуется - самый быстрый!)
+google-generativeai>=0.3.0  # Для Google Gemini
+aiohttp>=3.9.0  # Для асинхронных HTTP запросов
+
+# GUI
+customtkinter>=5.2.0  # Современный интерфейс (рекомендуется)
+# Note: pillow уже указан в Core dependencies

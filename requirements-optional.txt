@@ -1,0 +1,19 @@
+# Опциональные зависимости
+# Установите эти зависимости при необходимости
+
+# GPU Monitoring (опционально)
+# Для мониторинга температуры и утилизации NVIDIA GPU
+pynvml>=11.5.0
+
+# PostgreSQL Support (опционально, если не используете SQLite)
+# psycopg2-binary>=2.9.9  # Уже в requirements.txt
+# sqlalchemy>=2.0.0  # Уже в requirements.txt
+# alembic>=1.12.0  # Уже в requirements.txt
+
+# ML Tracking (опционально)
+# mlflow>=2.8.0  # Уже в requirements.txt
+# wandb>=0.16.0  # Уже в requirements.txt
+
+# Для установки опциональных зависимостей:
+# pip install -r requirements-optional.txt
+

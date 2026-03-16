@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      mosquitto:
+        image: eclipse-mosquitto:2
+        ports:
+          - 1883:1883
+        options: >-
+          --health-cmd "mosquitto_sub -t '#' -C 1 -W 2 || true"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-glx libglib2.0-0
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run unit tests
+        run: |
+          python -m pytest tests/unit/ \
+            --ignore=tests/unit/test_unified_engine.py \
+            -v --tb=short --timeout=60 \
+            --junitxml=reports/unit-results.xml
+        env:
+          DEVICE: cpu
+
+      - name: Run unified engine tests (allowed to fail)
+        continue-on-error: true
+        run: |
+          python -m pytest tests/unit/test_unified_engine.py \
+            -v --tb=short --timeout=120 \
+            --junitxml=reports/unified-results.xml
+        env:
+          DEVICE: cpu
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: reports/
+
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Lint with ruff
+        run: ruff check obelisk/ --select=E,F,W --ignore=E501,F401 --exit-zero

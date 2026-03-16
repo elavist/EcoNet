@@ -1,0 +1,165 @@
+active_learning:
+  auto_deploy: true
+  check_interval: 3600
+  collection_interval: 3600
+  confidence_lower: 0.3
+  confidence_upper: 0.7
+  enabled: true
+  min_improvement: 0.01
+  min_samples_for_retrain: 100
+  retrain_batch_size: 16
+  retrain_epochs: 10
+chat:
+  enabled: true
+  llm_api_key: null
+  llm_model: deepseek-r1:8b
+  llm_provider: ollama
+  ollama_base_url: http://localhost:11434
+  max_history: 50
+  use_llm: true
+data_lake:
+  base_path: data
+  labeled_path: data/labeled
+  logs_path: data/logs
+  models_path: data/models
+  raw_annotations_path: data/raw/annotations
+  raw_frames_path: data/raw/frames
+database:
+  postgresql:
+    database: swarm_cleaner
+    host: localhost
+    password: password
+    port: 5432
+    username: admin
+  sqlite_path: data/obelisk.db
+  type: sqlite
+dataset:
+  base_path: datasets\cigarette_butt
+  classes:
+  - cig_butt
+  test_path: datasets\cigarette_butt\test\images
+  train_path: datasets\cigarette_butt\train\images
+  val_path: datasets\cigarette_butt\valid\images
+edge:
+  device: cuda:0
+  inference_interval: 0.0
+  max_queue_size: 100
+logging:
+  backup_count: 5
+  file_path: data/logs/system.log
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  level: INFO
+  max_file_size: 10485760
+model:
+  confidence_threshold: 0.2  # Минимальный порог для максимального количества детекций
+  data_config: datasets\cigarette_butt\data.yaml
+  input_size: 640  # Увеличенный размер для лучшей детализации и большего количества детекций
+  iou_threshold: 0.4  # Более мягкий порог для меньше фильтрации
+  max_detections: 300  # Максимальное количество детекций
+  name: yolov8n
+  weights_path: models/cigarette_detector/best.pt
+model_engine:
+  device: cuda:0
+  half_precision: true   # FP16 — Tensor Cores RTX 3070 (2-3x ускорение)
+  max_batch_size: 32
+  use_onnx: false
+  cudnn_benchmark: true  # Автоподбор быстрейшего алгоритма конволюций
+  tf32: true             # TF32 для Ampere GPU
+  ensemble:
+    enabled: true
+    iou_threshold: 0.5
+    min_models_agree: 2
+    voting_method: weighted
+  models:
+  - enabled: true
+    name: primary
+    path: models/cigarette_detector/best.pt  # ТОЛЬКО PT МОДЕЛЬ - ONNX отключен
+    weight: 1.0
+mqtt_topics:
+  detection: obelisk/detection
+  model_update: obelisk/model/update
+  robot_heartbeat: robots/{robot_id}/heartbeat
+  robot_status: robots/{robot_id}/status
+  robot_telemetry: robots/{robot_id}/telemetry
+  system_status: obelisk/system/status
+  task_completed: obelisk/tasks/completed
+  task_failed: obelisk/tasks/failed
+  tasks: obelisk/tasks
+  # Полевая архитектура роя
+  swarm_field_state: swarm/field/{node_id}/state
+  swarm_field_flow: swarm/field/{node_id}/flow
+  swarm_field_announce: swarm/field/announce
+obelisk:
+  enable_tls: false
+  host: localhost
+  mqtt_broker: localhost
+  mqtt_password: null
+  mqtt_port: 1883
+  mqtt_username: null
+  port: 8000
+performance:
+  batch_processing: true  # ВКЛЮЧЕНО для максимальной производительности на GPU
+  frame_skip: 0  # Обрабатывать ВСЕ кадры - МАКСИМАЛЬНАЯ МОЩНОСТЬ
+  max_cache_size: 200  # Увеличенный кэш для максимальной производительности
+  parallel_vision: false  # Отключена — vision context не блокирует YOLO, запускается отдельно
+  target_fps: 120  # Целевой FPS повышен до 120 для GPU
+  max_frame_size: 1280  # Максимальный размер кадра для обработки (сохраняет качество)
+robots:
+  collector:
+    collection_timeout: 300
+    default_speed: 0.5
+    max_battery_low: 20
+    vacuum_duration: 2.0
+  heartbeat_interval: 30
+  task_timeout: 600
+security:
+  allowed_hosts:
+  - localhost
+  - 127.0.0.1
+  api_key_required: false
+  enable_encryption: false
+self_awareness:
+  allow_self_learning: true
+  allow_self_modification: true
+  enabled: true
+  improvement_loop_interval: 7200
+  scan_interval: 3600
+swarm_field:
+  enabled: true
+  # Коэффициенты поля эффективности (α + β + γ = 1)
+  alpha: 0.4        # Вес ресурсов (R_i)
+  beta: 0.4         # Вес вычислительной мощности (C_i)
+  gamma: 0.2        # Вес пропускной способности (B_i)
+  # Параметры диффузии
+  diffusion_coeff: 0.1    # D — скорость распространения информации
+  decay_factor: 0.01      # λ — затухание устаревших данных
+  mobility_coeff: 0.05    # k — скорость миграции задач
+  noise_scale: 0.001      # σ — стохастический шум для разведки
+  # Цикл ядра
+  tick_interval: 1.0      # Интервал обновления поля (сек)
+  # Коммуникация через MQTT
+  broadcast_interval: 2.0   # Интервал публикации состояний (сек)
+  stale_timeout: 30.0       # Время устаревания удалённого узла (сек)
+  # Планировщик
+  migration_threshold: 0.15  # Мин. перепад Φ для миграции задачи
+  max_migrations: 5          # Макс. миграций одной задачи
+  # Начальные узлы (создаются при старте)
+  initial_nodes:
+    - id: obelisk_core
+      resources: 1.0
+      compute: 1.0
+      bandwidth: 1.0
+    - id: yolo_detector
+      resources: 0.8
+      compute: 0.9
+      bandwidth: 0.7
+    - id: task_coordinator
+      resources: 0.7
+      compute: 0.6
+      bandwidth: 0.9
+    - id: information_hub
+      resources: 0.9
+      compute: 0.5
+      bandwidth: 1.0
+  # Топология начальных узлов
+  topology: full_mesh  # full_mesh | ring | manual

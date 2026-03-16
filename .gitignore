@@ -1,0 +1,105 @@
+# ========================================
+# EcoNet .gitignore
+# ========================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.cursor/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Models (heavy binary files) ---
+*.pt
+*.onnx
+*.trt
+*.engine
+models/
+!models/.gitkeep
+
+# --- Datasets (hundreds of MB) ---
+datasets/
+Cigarette Butt Detector.v5i.yolov8/
+
+# --- Data (logs, db, raw frames, media) ---
+data/
+!data/.gitkeep
+
+# --- Training runs ---
+runs/
+
+# --- External code (install via pip) ---
+YOLOv8-main/
+
+# --- Tools (third-party utilities) ---
+tools/
+
+# --- Database ---
+*.db
+*.sqlite
+*.sqlite3
+
+# --- Environment ---
+.env
+.env.local
+.env.example
+
+# --- Docker ---
+docker-compose.override.yml
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- MLflow / W&B ---
+mlruns/
+wandb/
+
+# --- Temp ---
+*.tmp
+*.temp
+*.bak
+*.log
+
+# --- Misc binary ---
+*.mp4
+*.avi
+*.mov
+*.zip
+*.tar.gz
+*.rar
+
+# --- pytest ---
+.pytest_cache/
+htmlcov/
+.coverage
